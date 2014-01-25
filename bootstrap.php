@@ -23,9 +23,9 @@ switch ($global_app_name)
         $f3->set('UI', $ui);
                 
         // TODO set some app-specific settings, if desired
-        $f3->route('GET /minify/css', '\Minify\Controllers\Minify->css');
-        $f3->route('GET /minify/js', '\Minify\Controllers\Minify->js');
-        $f3->route('GET /minify/*', '\Minify\Controllers\Minify->resource');
+        $f3->route('GET /minify/css', '\Minify\Controller->css');
+        $f3->route('GET /minify/js', '\Minify\Controller->js');
+        $f3->route('GET /minify/*', '\Minify\Controller->item');
         break;
 }
 ?>

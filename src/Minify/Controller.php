@@ -1,88 +1,48 @@
 <?php 
-namespace Minify\Controllers;
+namespace Minify;
 
-class Minify 
+class Controller extends \Dsc\Controller
 {
-    public function omg()
-    {
-        $filename = '/home/asingh/f3-satis/public/site/images/logo.png';
-                
-        $size = getimagesize($filename);
-        $fp = fopen($filename, "rb");
-        if ($size && $fp) {
-            header("Content-type: {$size['mime']}");
-            fpassthru($fp);
-            exit;
-        } else {
-            // error
-        }
-                
-        //return \Web::instance()->send('/home/asingh/f3-satis/public/site/images/logo.png', null, 0, false);
-        //return \Web::instance()->send('/home/asingh/f3-satis/tmp/files/00_native_wide_midCC.jpg', null, 0, false);
-    }
-    
-    public function resource()
+    public function item()
     {
         $resource = \Base::instance()->get('PARAMS.1');
-        switch ($resource) 
+        switch ($resource)
         {
         	case "js":
         	    return $this->js();
         	    break;
-    	    case "css":
-    	        return $this->css();
-    	        break;
-    	    default:
-	            $this->findAsset($resource);
-	            break;    	        
+        	case "css":
+        	    return $this->css();
+        	    break;
+        	default:
+        	    return $this->findAsset($resource);
+        	    break;
         }
     }
     
-    private function findAsset($resource=null)
+    public function findAsset($resource=null)
     {
         if (empty($resource)) {
             return;
         }
-        
+    
         // Loop through all the registered paths and try to find the requested asset
         // If it is found, send it with \Web::instance()->send($file, null, 0, false);
         $paths = (array) \Base::instance()->get('dsc.minify.paths');
-        //\FB::log($paths);
-        foreach ($paths as $path) 
+
+        foreach ($paths as $path)
         {
-            $file = realpath($path) . "/" . $resource;
-            //\FB::log($file);
-            if (file_exists($file)) {
-                
-                //return \Web::instance()->send($file, null, 0, false);
-                
-                //\Base::instance()->set('CACHE', false);
+            $file = realpath( $path . $resource );
+            if (file_exists($file)) 
+            {
                 \Base::instance()->set('file', $file);
                 $view = new \Dsc\Template;
                 echo $view->renderLayout('Minify\Views::asset.php');
-                //echo $view->renderLayout('Minify\Views::asset.php', \Web::instance()->mime($file));
                 
-                //header('Content-Type: '.(\Web::instance()->mime($file)));
-                //echo \Base::instance()->read( $file );
-                //return;
-                //echo $file;
-                //$getInfo = getimagesize($file);
-                //header('Content-Type: ' . $getInfo['mime']);
-                //readfile($file);
-                                
-                //header('Cache-Control: public');
-                
-                //readfile($file);
-                //echo (string) file_get_contents( $file );
-                //echo \Base::instance()->read( $file );
-                //\Web::instance()->send($file, null, 0, false);
-                //\Web::instance()->send($file);
-                //echo "\n";
-                //exit;
-                //break;
+                return;
             }
         }
-        
+    
         return;
     }
     
@@ -96,11 +56,11 @@ class Minify
                 }
             }
         }
-        
-        if (!empty($files)) 
+    
+        if (!empty($files))
         {
             \Base::instance()->set('UI', '../public/');
-            
+    
             if (\Base::instance()->get('DEBUG')) {
                 \Base::instance()->set('CACHE', false);
                 header('Content-Type: '.(\Web::instance()->mime('pretty.js')));
@@ -112,7 +72,7 @@ class Minify
             } else {
                 \Base::instance()->set('CACHE', true);
                 echo \Web::instance()->minify($files);
-            }            
+            }
         }
     }
     
@@ -126,7 +86,7 @@ class Minify
                 }
             }
         }
-        
+    
         \Base::instance()->set('UI', '../public/');
     
         if (\Base::instance()->get('DEBUG')) {
@@ -153,8 +113,8 @@ class Minify
         $f3 = \Base::instance();
         $source_files = (array) $f3->get('MINIFY_LESSCSS_SOURCEFILES');
         $less_files = array();
-        
-        if (!empty($source_files)) 
+    
+        if (!empty($source_files))
         {
             $less = new \lessc;
             $n=0;
@@ -168,23 +128,22 @@ class Minify
                 } catch (\Exception $e) {
                     // TODO Do something with the error
                 }
-                
+    
                 $n++;
             }
         }
-        
+    
         return $less_files;
     }
     
     private function getLessCssDestinations()
     {
         $f3 = \Base::instance();
-        
+    
         if (!$f3->get('MINIFY_LESSCSS_DESTINATIONFILES')) {
             $f3->set('MINIFY_LESSCSS_DESTINATIONFILES', $this->buildLessCss(), 3600*24);
         }
-        
+    
         return $f3->get('MINIFY_LESSCSS_DESTINATIONFILES');
     }
 }
-?> 
