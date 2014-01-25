@@ -15,7 +15,8 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "dioscouri/f3-lib": "dev-master"
+        "dioscouri/f3-lib": "dev-master",
+        "leafo/lessphp": ">=0.4.0"
     },
     "autoload": {
         "psr-0": {

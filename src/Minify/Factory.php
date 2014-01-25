@@ -1,129 +1,97 @@
 <?php 
-namespace Modules;
+namespace Minify;
 
 class Factory extends \Prefab 
 {
     /**
-     * Bootstraps all registered modules
+     * Adds a javascript file to the array of files to be minified 
      * 
-     */
-    public function bootstrap()
-    {
-        $paths = \Base::instance()->get('dsc.module.paths');
-        
-        foreach ($paths as $path)
-        {
-            if ($folders = \Joomla\Filesystem\Folder::folders( $path ))
-            {
-                foreach ($folders as $folder)
-                {
-                    if (file_exists( $path . $folder . '/bootstrap.php' )) {
-                        require_once $path . $folder . '/bootstrap.php';
-                    }
-                }
-            }
-        }
-        
-        return $this;
-    }
-    
-    /**
-     * Loads the modules published to a particular position, 
-     * optionally (usually) filtered by a route (accepts * or null to indicate all routes)
-     * 
-     * @param unknown $postition
-     * @param string $route
-     * @param array $options
-     * 
-     * @return array
-     */
-    public static function load( $position, $route=null, $options=array() )
-    {
-        $return = array();
-
-        $model = new \Modules\Admin\Models\Modules;
-        $list = $model->setState('filter.position', $position)->setState('filter.published', true)->getList();
-        
-        // Run each module in $return through the Assignments check
-        foreach ($list as $module) 
-        {
-            if ($module->passesAssignments( $route, $options )) 
-            {
-                $return[] = $module;
-            }
-        }  
-        
-        return $return;    
-    }
-    
-    /**
-     * Render a module position
-     * 
-     * @param unknown $position
-     * @param string $route
+     * @param unknown $fullpath
+     * @param number $priority
      * @param unknown $options
-     * 
-     * @return string HTML
      */
-    public static function render( $position, $route=null, $options=array() )
+    public static function js( $path, $options=array() )
     {
-        $contents = array();
-        foreach (self::load($position, $route, $options) as $module) 
-        {
-            $contents[] = $module->render();
-        }
+        $options = $options + array(
+        	'priority' => 3,
+            'register_path' => false
+        );
             
-        return implode('', $contents);
+        $paths = \Base::instance()->get('dsc.minify.js');
+        if (empty($paths) || !is_array($paths))
+        {
+            $paths = array();
+        }
+        
+        $priority = (int) $options['priority'];
+        if (empty($paths[$priority]) || !is_array($paths[$priority]))
+        {
+            $paths[$priority] = array();
+        }
+
+        if (!in_array($path, $paths[$priority]))
+        {
+            array_push( $paths[$priority], $path );
+            \Base::instance()->set('dsc.minify.js', $paths);
+        }
+        
+        // TODO if $options['register_path], 
+        // extract the path of the file using basename() or something 
+        // and run self::registerPath(), 
+        // to be used by the minify controller when looking up media assets 
+        
+        return $paths;
     }
     
     /**
-     * Register a position with the system,
-     * for use in the f3-admin when displaying available module positions.
-     * Normal usage is within a Listener or a bootstrap file for registering a template's custom positions
-     * 
-     * @param unknown $name
+     * Adds a css file to the array of files to be minified
+     *
+     * @param unknown $fullpath
+     * @param number $priority
+     * @param unknown $options
      */
-    public static function registerPositions( $new_positions=null )
+    public static function css( $path, $options=array() )
     {
-        $positions = \Base::instance()->get('dsc.module.positions');
-        if (empty($positions) || !is_array($positions))
+        $options = $options + array(
+            'priority' => 3,
+            'register_path' => false
+        );
+    
+        $paths = \Base::instance()->get('dsc.minify.css');
+        if (empty($paths) || !is_array($paths))
         {
-            $positions = array();
+            $paths = array();
         }
-        
-        if (empty($new_positions)) 
+    
+        $priority = (int) $options['priority'];
+        if (empty($paths[$priority]) || !is_array($paths[$priority]))
         {
-            return $positions;
+            $paths[$priority] = array();
         }
-        
-        if (!is_array($new_positions)) 
+    
+        if (!in_array($path, $paths[$priority]))
         {
-            $new_positions = array( $new_positions );
+            array_push( $paths[$priority], $path );
+            \Base::instance()->set('dsc.minify.css', $paths);
         }
-        
-        foreach ($new_positions as $position) 
-        {
-            // if $positions is not already registered, register it
-            if (!in_array($position, $positions))
-            {
-                $positions[] = $position;
-            }
-        }
-        
-        \Base::instance()->set('dsc.module.positions', $positions);
-        
-        return $positions;
+    
+        // TODO if $options['register_path],
+        // extract the path of the file using basename() or something
+        // and run self::registerPath(),
+        // to be used by the minify controller when looking up media assets
+    
+        return $paths;
     }
     
     /**
-     * Registers a position where a module may be located
-     * Used when getting a list of installed modules
-     * 
+     * Registers a position where a auxiliary assets may be located, 
+     * such as image files that a js/css file references
+     *  
      * @param unknown $path
      */
     public static function registerPath( $path ) 
     {
-        $paths = \Base::instance()->get('dsc.module.paths');
+        $paths = \Base::instance()->get('dsc.minify.paths');
         if (empty($paths) || !is_array($paths)) 
         {
             $paths = array();
@@ -134,9 +102,24 @@ class Factory extends \Prefab
         if (!in_array($path, $paths)) 
         {
             array_unshift( $paths, $path );
-            \Base::instance()->set('dsc.module.paths', $paths);
+            \Base::instance()->set('dsc.minify.paths', $paths);
         }
         
         return $paths;
+    }
+    
+    public function omg()
+    {
+        $filename = '/home/asingh/f3-satis/public/site/images/logo.png';
+    
+        $size = getimagesize($filename);
+        $fp = fopen($filename, "rb");
+        if ($size && $fp) {
+            header("Content-type: {$size['mime']}");
+            fpassthru($fp);
+            exit;
+        } else {
+            // error
+        }
     }
 }
