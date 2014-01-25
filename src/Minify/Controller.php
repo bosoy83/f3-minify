@@ -111,7 +111,7 @@ class Controller extends \Dsc\Controller
     private function buildLessCss()
     {
         $f3 = \Base::instance();
-        $source_files = (array) $f3->get('MINIFY_LESSCSS_SOURCEFILES');
+        $source_files = (array) $f3->get('dsc.minify.lesscss.sources');
         $less_files = array();
     
         if (!empty($source_files))

@@ -98,13 +98,36 @@ class Factory extends \Prefab
         }
         
         // if $path is not already registered, register it
-        // last ones inserted are given priority by using unshift
         if (!in_array($path, $paths)) 
         {
-            array_unshift( $paths, $path );
+            array_push( $paths, $path );
             \Base::instance()->set('dsc.minify.paths', $paths);
         }
         
         return $paths;
+    }
+    
+    /**
+     * Registers a less css source file to be minified
+     *
+     * @param unknown $path
+     */
+    public static function registerLessCssSource( $source, $destination=null )
+    {
+        $sources = \Base::instance()->get('dsc.minify.lesscss.sources');
+        if (empty($sources) || !is_array($sources))
+        {
+            $sources = array();
+        }
+    
+        // if $source is not already registered, register it
+        // last ones inserted are given priority by using unshift
+        if (!in_array($source, $sources))
+        {
+            array_push( $sources, array( $source, $destination ) );
+            \Base::instance()->set('dsc.minify.lesscss.sources', $sources);
+        }
+    
+        return $sources;
     }
 }
