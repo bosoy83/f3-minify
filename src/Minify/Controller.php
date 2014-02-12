@@ -42,7 +42,9 @@ class Controller extends \Dsc\Controller
                 return;
             }
         }
-    
+        
+        // File not found.
+        \Base::instance()->error(500);
         return;
     }
     
