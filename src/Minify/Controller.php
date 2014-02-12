@@ -140,10 +140,10 @@ class Controller extends \Dsc\Controller
     {
         $f3 = \Base::instance();
     
-        if (!$f3->get('MINIFY_LESSCSS_DESTINATIONFILES')) {
-            $f3->set('MINIFY_LESSCSS_DESTINATIONFILES', $this->buildLessCss(), 3600*24);
+        if (!$f3->get('dsc.minify.lesscss.destinations')) {
+            $f3->set('dsc.minify.lesscss.destinations', $this->buildLessCss(), 3600*24);
         }
     
-        return $f3->get('MINIFY_LESSCSS_DESTINATIONFILES');
+        return $f3->get('dsc.minify.lesscss.destinations');
     }
 }
