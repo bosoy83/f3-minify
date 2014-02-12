@@ -59,19 +59,27 @@ class Controller extends \Dsc\Controller
     
         if (!empty($files))
         {
-            \Base::instance()->set('UI', '../public/');
-    
             if (\Base::instance()->get('DEBUG')) {
+                $paths = (array) \Base::instance()->get('dsc.minify.paths');
                 \Base::instance()->set('CACHE', false);
                 header('Content-Type: '.(\Web::instance()->mime('pretty.js')));
-                foreach($files as $file) {
-                    echo \Base::instance()->read( $file );
-                    //\Web::instance()->send($file, null, 0, false);
-                    echo "\n";
+                foreach($files as $file) 
+                {
+                    foreach ($paths as $path)
+                    {
+                        try {
+                            echo \Base::instance()->read( $path . $file );
+                            echo "\n";
+                            break;
+                        } catch (\Exception $e) {
+                            continue;
+                        }
+                    }
                 }
             } else {
+                $paths_string = implode(",", (array) \Base::instance()->get('dsc.minify.paths'));
                 \Base::instance()->set('CACHE', true);
-                echo \Web::instance()->minify($files);
+                echo \Web::instance()->minify($files, null, true, $paths_string);
             }
         }
     }
@@ -87,21 +95,29 @@ class Controller extends \Dsc\Controller
             }
         }
     
-        \Base::instance()->set('UI', '../public/');
-    
         if (\Base::instance()->get('DEBUG')) {
+            $paths = (array) \Base::instance()->get('dsc.minify.paths');
             $files = array_merge( $files, $this->buildLessCss() );
             \Base::instance()->set('CACHE', false);
             header('Content-Type: '.(\Web::instance()->mime('pretty.css')));
-            foreach($files as $file) {
-                echo \Base::instance()->read( $file );
-                //\Web::instance()->send($file, null, 0, false);
-                echo "\n";
+            foreach($files as $file) 
+            {
+                foreach ($paths as $path) 
+                {
+                    try {
+                        echo \Base::instance()->read( $path . $file );
+                        echo "\n";
+                        break;
+                    } catch (\Exception $e) {
+                        continue;
+                    }
+                }
             }
         } else {
+            $paths_string = implode(",", (array) \Base::instance()->get('dsc.minify.paths'));
             \Base::instance()->set('CACHE', true);
             $files = array_merge( $files, $this->getLessCssDestinations() );
-            echo \Web::instance()->minify($files);
+            echo \Web::instance()->minify($files, null, true, $paths_string);
         }
     }
     
