@@ -18,14 +18,14 @@ switch ($global_app_name)
         break;
     case "site":
         // append this app's UI folder to the path
-        $ui = $f3->get('UI');
+        // new way
+        \Dsc\System::instance()->get('theme')->registerViewPath( __dir__ . '/src/Minify/Views/', 'Minify/Views' );
+        // old way
+    	$ui = $f3->get('UI');
         $ui .= ";" . $f3->get('PATH_ROOT') . "vendor/dioscouri/f3-minify/src/Minify/Views/";
         $f3->set('UI', $ui);
-                
-        // TODO set some app-specific settings, if desired
-        $f3->route('GET /minify/css', '\Minify\Controller->css');
-        $f3->route('GET /minify/js', '\Minify\Controller->js');
-        $f3->route('GET /minify/*', '\Minify\Controller->item');
+        // register all the routes
+        \Dsc\System::instance()->get('router')->mount( new \Minify\Routes );
         break;
 }
 ?>
