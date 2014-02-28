@@ -25,7 +25,7 @@ switch ($global_app_name)
         $ui .= ";" . $f3->get('PATH_ROOT') . "vendor/dioscouri/f3-minify/src/Minify/Views/";
         $f3->set('UI', $ui);
         // register all the routes
-        \Dsc\System::instance()->get('router')->mount( new \Minify\Routes );
+        \Dsc\System::instance()->get('router')->mount( new \Minify\Routes, 'minify' );
         break;
 }
 ?>
