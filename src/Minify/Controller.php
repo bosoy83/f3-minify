@@ -69,13 +69,17 @@ class Controller extends \Dsc\Controller
                 {
                     foreach ($paths as $path)
                     {
-                        try {
-                            echo \Base::instance()->read( $path . $file );
-                            echo "\n";
-                            break;
-                        } catch (\Exception $e) {
-                            continue;
-                        }
+                        if (file_exists(realpath($path.$file)))
+                        {
+                            try {
+                                echo \Base::instance()->read( $path . $file );
+                                echo "\n";
+                                break;
+                            } catch (\Exception $e) {
+                                continue;
+                            }
+                        
+                        }                        
                     }
                 }
             } else {
@@ -106,12 +110,16 @@ class Controller extends \Dsc\Controller
             {
                 foreach ($paths as $path) 
                 {
-                    try {
-                        echo \Base::instance()->read( $path . $file );
-                        echo "\n";
-                        break;
-                    } catch (\Exception $e) {
-                        continue;
+                    if (file_exists(realpath($path.$file))) 
+                    {
+                        try {
+                            echo \Base::instance()->read( $path . $file );
+                            echo "\n";
+                            break;
+                        } catch (\Exception $e) {
+                            continue;
+                        }
+                        
                     }
                 }
             }
