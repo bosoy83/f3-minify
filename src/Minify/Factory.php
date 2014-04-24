@@ -24,9 +24,12 @@ class Factory extends \Prefab
         }
         
         $priority = (int) $options['priority'];
-        if (empty($paths[$priority]) || !is_array($paths[$priority]))
+        for ($i=0; $i<=$priority; $i++)
         {
-            $paths[$priority] = array();
+            if (empty($paths[$i]) || !is_array($paths[$i]))
+            {
+                $paths[$i] = array();
+            }
         }
 
         if (!in_array($path, $paths[$priority]))
@@ -64,9 +67,12 @@ class Factory extends \Prefab
         }
     
         $priority = (int) $options['priority'];
-        if (empty($paths[$priority]) || !is_array($paths[$priority]))
+        for ($i=0; $i<=$priority; $i++)
         {
-            $paths[$priority] = array();
+            if (empty($paths[$i]) || !is_array($paths[$i]))
+            {
+                $paths[$i] = array();
+            }
         }
     
         if (!in_array($path, $paths[$priority]))
