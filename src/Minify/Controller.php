@@ -25,7 +25,29 @@ class Controller extends \Dsc\Controller
         if (empty($resource)) {
             return;
         }
-    
+        
+        // TODO allow this to be modified, both by an admin interface and via a class::method
+        $approved_extensions = array(
+            // images
+            'bmp','gif','ico','jpg','jpeg','odg','png','svg',
+            // video
+            '3gp','amv','avi','divx','mov','mp4','mpg','qt','rm','wmv','swf',
+            // audio
+            'm4a','mp3','ogg','wma','wav',
+            // fonts
+            'eot','otf','ttf','woff',
+            // text files
+            'csv','doc','odp','ods','odt','pdf','ppt','txt','xcf','xls'
+        );
+
+        // Is the extension of the requested asset in the list of approved extensions?        
+        $extension = strtolower( pathinfo( $resource, PATHINFO_EXTENSION ) );
+        if (!in_array($extension, $approved_extensions)) 
+        {
+            \Base::instance()->error(500);
+            return;        	
+        }
+        
         // Loop through all the registered paths and try to find the requested asset
         // If it is found, send it with \Web::instance()->send($file, null, 0, false);
         $paths = (array) \Base::instance()->get('dsc.minify.paths');
@@ -36,8 +58,8 @@ class Controller extends \Dsc\Controller
             if (file_exists($file)) 
             {
                 \Base::instance()->set('file', $file);
-                $view = new \Dsc\Template;
-                echo $view->renderLayout('Minify\Views::asset.php');
+                $theme = \Dsc\System::instance()->get('theme');
+                echo $theme->renderView('Minify\Views::asset.php');
                 
                 return;
             }
