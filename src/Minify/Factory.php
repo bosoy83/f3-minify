@@ -103,6 +103,8 @@ class Factory extends \Prefab
             $paths = array();
         }
         
+        $path = realpath($path) . '/';
+        
         // if $path is not already registered, register it
         if (!in_array($path, $paths)) 
         {

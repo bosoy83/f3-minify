@@ -72,8 +72,10 @@ class Controller extends \Dsc\Controller
     
     public function js()
     {
+        $f3 = \Base::instance();
+        
         $files = array();
-        if ($prioritized_files = (array) \Base::instance()->get('dsc.minify.js')) {
+        if ($prioritized_files = (array) $f3->get('dsc.minify.js')) {
             foreach ($prioritized_files as $priority=>$paths) {
                 foreach ((array)$paths as $path) {
                     $files[] = $path;
@@ -83,9 +85,9 @@ class Controller extends \Dsc\Controller
     
         if (!empty($files))
         {
-            if (\Base::instance()->get('DEBUG')) {
-                $paths = (array) \Base::instance()->get('dsc.minify.paths');
-                \Base::instance()->set('CACHE', false);
+            if ($f3->get('DEBUG')) {
+                $paths = (array) $f3->get('dsc.minify.paths');
+                $f3->set('CACHE', false);
                 header('Content-Type: '.(\Web::instance()->mime('pretty.js')));
                 foreach($files as $file) 
                 {
@@ -94,7 +96,7 @@ class Controller extends \Dsc\Controller
                         if (file_exists(realpath($path.$file)))
                         {
                             try {
-                                echo \Base::instance()->read( $path . $file );
+                                echo $f3->read( $path . $file );
                                 echo "\n";
                                 break;
                             } catch (\Exception $e) {
@@ -105,15 +107,38 @@ class Controller extends \Dsc\Controller
                     }
                 }
             } else {
-                $paths_string = implode(",", (array) \Base::instance()->get('dsc.minify.paths'));
-                \Base::instance()->set('CACHE', true);
-                echo \Web::instance()->minify($files, null, true, $paths_string);
+
+                $f3->set('CACHE', true);
+                $cache = \Cache::instance();
+                $refresh = $this->input->get('refresh', 0, 'int');
+                if ($refresh || !$cache->exists('minify.js', $minified))
+                {
+                    $paths = (array) $f3->get('dsc.minify.paths');
+                    foreach($files as $key=>$file)
+                    {
+                        foreach ($paths as $path)
+                        {
+                            if (file_exists(realpath($path.$file)))
+                            {
+                                $files[$key] = realpath($path.$file);
+                            }
+                        }
+                    }
+                    
+                    $minified = \Web::instance()->minify($files, null, true, '/');
+                    $cache->set('minify.js', $minified, 3600*24);
+                }
+                
+                header('Content-Type: '.(\Web::instance()->mime('pretty.js')).'; charset='.$f3->get('ENCODING'));
+                echo $minified;
             }
         }
     }
     
     public function css()
     {
+        $f3 = \Base::instance();
+        
         $files = array();
         if ($prioritized_files = (array) \Base::instance()->get('dsc.minify.css')) {
             foreach ($prioritized_files as $priority=>$paths) {
@@ -123,8 +148,8 @@ class Controller extends \Dsc\Controller
             }
         }
     
-        if (\Base::instance()->get('DEBUG')) {
-            $paths = (array) \Base::instance()->get('dsc.minify.paths');
+        if ($f3->get('DEBUG')) {
+            $paths = (array) $f3->get('dsc.minify.paths');
             $files = array_merge( $files, $this->buildLessCss() );
             \Base::instance()->set('CACHE', false);
             header('Content-Type: '.(\Web::instance()->mime('pretty.css')));
@@ -135,7 +160,7 @@ class Controller extends \Dsc\Controller
                     if (file_exists(realpath($path.$file))) 
                     {
                         try {
-                            echo \Base::instance()->read( $path . $file );
+                            echo $f3->read( $path . $file );
                             echo "\n";
                             break;
                         } catch (\Exception $e) {
@@ -146,10 +171,31 @@ class Controller extends \Dsc\Controller
                 }
             }
         } else {
-            $paths_string = implode(",", (array) \Base::instance()->get('dsc.minify.paths'));
-            \Base::instance()->set('CACHE', true);
-            $files = array_merge( $files, $this->getLessCssDestinations() );
-            echo \Web::instance()->minify($files, null, true, $paths_string);
+            
+            $f3->set('CACHE', true);
+            $cache = \Cache::instance();
+            $refresh = $this->input->get('refresh', 0, 'int');
+            if ($refresh || !$cache->exists('minify.css', $minified)) 
+            {
+                $files = array_merge( $files, $this->getLessCssDestinations() );
+                $paths = (array) $f3->get('dsc.minify.paths');
+                foreach($files as $key=>$file)
+                {
+                    foreach ($paths as $path)
+                    {
+                        if (file_exists(realpath($path.$file)))
+                        {
+                            $files[$key] = realpath($path.$file);
+                        }
+                    }
+                }
+                
+                $minified = \Web::instance()->minify($files, null, true, '/');
+                $cache->set('minify.css', $minified, 3600*24);
+            }
+            
+            header('Content-Type: '.(\Web::instance()->mime('pretty.css')).'; charset='.$f3->get('ENCODING'));
+            echo $minified;
         }
     }
     
