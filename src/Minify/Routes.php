@@ -1,43 +1,39 @@
 <?php
-
 namespace Minify;
 
-/**
- * Group class is used to keep track of a group of routes with similar aspects (the same controller, the same f3-app and etc)
- */
-class Routes extends \Dsc\Routes\Group{
-	
-	
-	function __construct(){
-		parent::__construct();
-	}
-	
-	/**
-	 * Initializes all routes for this group
-	 * NOTE: This method should be overriden by every group
-	 */
-	public function initialize(){
-		$this->setDefaults(
-				array(
-					'namespace' => '\Minify',
-					'url_prefix' => '/minify'
-				)
-		);
-		
-        // TODO set some app-specific settings, if desired
-		$this->add( '/css', 'GET', array(
-								'controller' => 'Controller',
-								'action' => 'css'
-								));
+class Routes extends \Dsc\Routes\Group
+{
 
-		$this->add( '/js', 'GET', array(
-				'controller' => 'Controller',
-				'action' => 'js'
-		));
+    public function initialize()
+    {
+        $f3 = \Base::instance();
+        
+        $this->setDefaults(array(
+            'namespace' => '\Minify',
+            'url_prefix' => '/minify'
+        ));
 
-		$this->add( '/*', 'GET', array(
-				'controller' => 'Controller',
-				'action' => 'item'
-		));
-	}
+        if ($f3->get('CACHE') && !$f3->get('DEBUG')) 
+        {
+            $f3->route( 'GET /minify/css', '\Minify\Controller->css', 3600*24 );
+            $f3->route( 'GET /minify/js', '\Minify\Controller->js', 3600*24 );
+        } 
+        else 
+        {
+            $this->add('/css', 'GET', array(
+                'controller' => 'Controller',
+                'action' => 'css'
+            ));
+            
+            $this->add('/js', 'GET', array(
+                'controller' => 'Controller',
+                'action' => 'js'
+            ));
+        }
+        
+        $this->add('/*', 'GET', array(
+            'controller' => 'Controller',
+            'action' => 'item'
+        ));
+    }
 }
