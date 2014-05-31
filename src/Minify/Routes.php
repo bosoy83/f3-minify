@@ -27,5 +27,9 @@ class Routes extends \Dsc\Routes\Group
             'controller' => 'Controller',
             'action' => 'item'
         ));
+        
+        $f3->route('GET /admin/minify/css', '\Minify\Controller->css');
+        $f3->route('GET /admin/minify/js', '\Minify\Controller->js');
+        $f3->route('GET /admin/minify/*', '\Minify\Controller->item');
     }
 }
