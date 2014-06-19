@@ -108,6 +108,28 @@ class Controller extends \Dsc\Controller
                 }
             } else {
 
+                $paths = (array) $f3->get('dsc.minify.paths');
+                $f3->set('CACHE', false);
+                header('Content-Type: '.(\Web::instance()->mime('pretty.js')));
+                foreach($files as $file)
+                {
+                    foreach ($paths as $path)
+                    {
+                        if (file_exists(realpath($path.$file)))
+                        {
+                            try {
+                                echo $f3->read( $path . $file );
+                                echo "\n";
+                                break;
+                            } catch (\Exception $e) {
+                                continue;
+                            }
+                
+                        }
+                    }
+                }                
+                
+                /*
                 $f3->set('CACHE', true);
                 $cache = \Cache::instance();
                 $refresh = $this->input->get('refresh', 0, 'int');
@@ -131,6 +153,7 @@ class Controller extends \Dsc\Controller
                 
                 header('Content-Type: '.(\Web::instance()->mime('pretty.js')).'; charset='.$f3->get('ENCODING'));
                 echo $minified;
+                */
             }
         }
     }
@@ -149,6 +172,7 @@ class Controller extends \Dsc\Controller
         }
     
         if ($f3->get('DEBUG')) {
+            
             $paths = (array) $f3->get('dsc.minify.paths');
             $files = array_merge( $files, $this->buildLessCss() );
             \Base::instance()->set('CACHE', false);
@@ -170,8 +194,32 @@ class Controller extends \Dsc\Controller
                     }
                 }
             }
+            
         } else {
             
+            $paths = (array) $f3->get('dsc.minify.paths');
+            $files = array_merge( $files, $this->buildLessCss() );
+            \Base::instance()->set('CACHE', false);
+            header('Content-Type: '.(\Web::instance()->mime('pretty.css')));
+            foreach($files as $file)
+            {
+                foreach ($paths as $path)
+                {
+                    if (file_exists(realpath($path.$file)))
+                    {
+                        try {
+                            echo $f3->read( $path . $file );
+                            echo "\n";
+                            break;
+                        } catch (\Exception $e) {
+                            continue;
+                        }
+            
+                    }
+                }
+            }            
+            
+            /*
             $f3->set('CACHE', true);
             $cache = \Cache::instance();
             $refresh = $this->input->get('refresh', 0, 'int');
@@ -196,6 +244,7 @@ class Controller extends \Dsc\Controller
             
             header('Content-Type: '.(\Web::instance()->mime('pretty.css')).'; charset='.$f3->get('ENCODING'));
             echo $minified;
+            */
         }
     }
     
