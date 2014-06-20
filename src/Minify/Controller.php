@@ -48,9 +48,11 @@ class Controller extends \Dsc\Controller
             return;        	
         }
         
+        $global_app_name = \Base::instance()->get('APP_NAME');
+        
         // Loop through all the registered paths and try to find the requested asset
         // If it is found, send it with \Web::instance()->send($file, null, 0, false);
-        $paths = (array) \Base::instance()->get('dsc.minify.paths');
+        $paths = (array) \Base::instance()->get($global_app_name . '.dsc.minify.paths');
 
         foreach ($paths as $path)
         {
@@ -73,9 +75,10 @@ class Controller extends \Dsc\Controller
     public function js()
     {
         $f3 = \Base::instance();
+        $global_app_name = \Base::instance()->get('APP_NAME');
         
         $files = array();
-        if ($prioritized_files = (array) $f3->get('dsc.minify.js')) {
+        if ($prioritized_files = (array) $f3->get($global_app_name . '.dsc.minify.js')) {
             foreach ($prioritized_files as $priority=>$paths) {
                 foreach ((array)$paths as $path) {
                     $files[] = $path;
@@ -86,7 +89,7 @@ class Controller extends \Dsc\Controller
         if (!empty($files))
         {
             if ($f3->get('DEBUG')) {
-                $paths = (array) $f3->get('dsc.minify.paths');
+                $paths = (array) $f3->get($global_app_name . '.dsc.minify.paths');
                 $f3->set('CACHE', false);
                 header('Content-Type: '.(\Web::instance()->mime('pretty.js')));
                 foreach($files as $file) 
@@ -113,9 +116,9 @@ class Controller extends \Dsc\Controller
                 $f3->set('CACHE', true);
                 $cache = \Cache::instance();
                 $refresh = $this->input->get('refresh', 0, 'int');
-                if ($refresh || !$cache->exists('minify.js', $minified))
+                if ($refresh || !$cache->exists($global_app_name . '.minify.js', $minified))
                 {
-                    $paths = (array) $f3->get('dsc.minify.paths');
+                    $paths = (array) $f3->get($global_app_name . '.dsc.minify.paths');
                     foreach($files as $key=>$file)
                     {
                         foreach ($paths as $path)
@@ -129,7 +132,7 @@ class Controller extends \Dsc\Controller
                     }
                     
                     //$minified = \Web::instance()->minify($files, null, true, '/');
-                    $cache->set('minify.js', $minified, 3600*24);
+                    $cache->set($global_app_name . '.minify.js', $minified, 3600*24);
                 }
                 
                 header('Content-Type: '.(\Web::instance()->mime('pretty.js')).'; charset='.$f3->get('ENCODING'));
@@ -141,9 +144,10 @@ class Controller extends \Dsc\Controller
     public function css()
     {
         $f3 = \Base::instance();
+        $global_app_name = \Base::instance()->get('APP_NAME');
         
         $files = array();
-        if ($prioritized_files = (array) \Base::instance()->get('dsc.minify.css')) {
+        if ($prioritized_files = (array) \Base::instance()->get($global_app_name . '.dsc.minify.css')) {
             foreach ($prioritized_files as $priority=>$paths) {
                 foreach ((array)$paths as $path) {
                     $files[] = $path;
@@ -152,7 +156,7 @@ class Controller extends \Dsc\Controller
         }
     
         if ($f3->get('DEBUG')) {
-            $paths = (array) $f3->get('dsc.minify.paths');
+            $paths = (array) $f3->get($global_app_name . '.dsc.minify.paths');
             $files = array_merge( $files, $this->buildLessCss() );
             \Base::instance()->set('CACHE', false);
             header('Content-Type: '.(\Web::instance()->mime('pretty.css')));
@@ -181,7 +185,7 @@ class Controller extends \Dsc\Controller
             if ($refresh || !$cache->exists('minify.css', $minified)) 
             {
                 $files = array_merge( $files, $this->getLessCssDestinations() );
-                $paths = (array) $f3->get('dsc.minify.paths');
+                $paths = (array) $f3->get($global_app_name . '.dsc.minify.paths');
                 foreach($files as $key=>$file)
                 {
                     foreach ($paths as $path)
@@ -208,7 +212,9 @@ class Controller extends \Dsc\Controller
     private function buildLessCss()
     {
         $f3 = \Base::instance();
-        $source_files = (array) $f3->get('dsc.minify.lesscss.sources');
+        $global_app_name = \Base::instance()->get('APP_NAME');
+        
+        $source_files = (array) $f3->get($global_app_name . '.dsc.minify.lesscss.sources');
         $less_files = array();
     
         if (!empty($source_files))
@@ -236,11 +242,12 @@ class Controller extends \Dsc\Controller
     private function getLessCssDestinations()
     {
         $f3 = \Base::instance();
-    
-        if (!$f3->get('dsc.minify.lesscss.destinations')) {
-            $f3->set('dsc.minify.lesscss.destinations', $this->buildLessCss(), 3600*24);
+        $global_app_name = \Base::instance()->get('APP_NAME');
+        
+        if (!$f3->get($global_app_name . '.dsc.minify.lesscss.destinations')) {
+            $f3->set($global_app_name . '.dsc.minify.lesscss.destinations', $this->buildLessCss(), 3600*24);
         }
     
-        return $f3->get('dsc.minify.lesscss.destinations');
+        return $f3->get($global_app_name . '.dsc.minify.lesscss.destinations');
     }
 }
