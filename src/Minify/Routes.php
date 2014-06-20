@@ -18,14 +18,14 @@ class Routes extends \Dsc\Routes\Group
         }
         else 
         {
-            $cache_period = 3600*24;
+            $cache_period = 3600*24*7;
             
             $this->app->route('GET /minify/css', '\Minify\Controller->css', $cache_period);
             $this->app->route('GET /minify/js', '\Minify\Controller->js', $cache_period);
             $this->app->route('GET /minify/*', '\Minify\Controller->item', $cache_period);
-            $this->app->route('GET /admin/minify/css', '\Minify\Controller->css', $cache_period);
-            $this->app->route('GET /admin/minify/js', '\Minify\Controller->js', $cache_period);
-            $this->app->route('GET /admin/minify/*', '\Minify\Controller->item', $cache_period);
+            $this->app->route('GET /admin/minify/css', '\Minify\Controller->css');
+            $this->app->route('GET /admin/minify/js', '\Minify\Controller->js');
+            $this->app->route('GET /admin/minify/*', '\Minify\Controller->item');
         }
     }
 }
