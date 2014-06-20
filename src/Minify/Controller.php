@@ -108,6 +108,8 @@ class Controller extends \Dsc\Controller
                 }
             } else {
 
+                $minified = null;
+                
                 $f3->set('CACHE', true);
                 $cache = \Cache::instance();
                 $refresh = $this->input->get('refresh', 0, 'int');
@@ -120,12 +122,13 @@ class Controller extends \Dsc\Controller
                         {
                             if (file_exists(realpath($path.$file)))
                             {
-                                $files[$key] = realpath($path.$file);
+                                //$files[$key] = realpath($path.$file);
+                                $minified .= \Minify\Lib\Js::minify( file_get_contents( realpath($path.$file) ) );
                             }
                         }
                     }
                     
-                    $minified = \Web::instance()->minify($files, null, true, '/');
+                    //$minified = \Web::instance()->minify($files, null, true, '/');
                     $cache->set('minify.js', $minified, 3600*24);
                 }
                 
