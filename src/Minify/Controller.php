@@ -182,7 +182,7 @@ class Controller extends \Dsc\Controller
             $f3->set('CACHE', true);
             $cache = \Cache::instance();
             $refresh = $this->input->get('refresh', 0, 'int');
-            if ($refresh || !$cache->exists('minify.css', $minified)) 
+            if ($refresh || !$cache->exists($global_app_name . '.minify.css', $minified)) 
             {
                 $files = array_merge( $files, $this->getLessCssDestinations() );
                 $paths = (array) $f3->get($global_app_name . '.dsc.minify.paths');
@@ -198,7 +198,7 @@ class Controller extends \Dsc\Controller
                 }
                 
                 $minified = \Web::instance()->minify($files, null, true, '/');
-                $cache->set('minify.css', $minified, 3600*24);
+                $cache->set($global_app_name . '.minify.css', $minified, 3600*24);
             }
             
             header('Content-Type: '.(\Web::instance()->mime('pretty.css')).'; charset='.$f3->get('ENCODING'));
