@@ -243,8 +243,9 @@ class Controller extends \Dsc\Controller
     {
         $f3 = \Base::instance();
         $global_app_name = \Base::instance()->get('APP_NAME');
+        $refresh = $this->input->get('refresh', 0, 'int');
         
-        if (!$f3->get($global_app_name . '.dsc.minify.lesscss.destinations')) {
+        if ($refresh || !$f3->get($global_app_name . '.dsc.minify.lesscss.destinations')) {
             $f3->set($global_app_name . '.dsc.minify.lesscss.destinations', $this->buildLessCss(), 3600*24);
         }
     
