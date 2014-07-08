@@ -160,8 +160,20 @@ class Controller extends \Dsc\Controller
             $files = array_merge( $files, $this->buildLessCss() );
             \Base::instance()->set('CACHE', false);
             header('Content-Type: '.(\Web::instance()->mime('pretty.css')));
+            
             foreach($files as $file) 
             {
+                if (file_exists(realpath($file)))
+                {
+                    try {
+                        echo $f3->read( $file );
+                        echo "\n";
+                        continue;
+                    } catch (\Exception $e) {
+                        continue;
+                    }
+                }
+                                
                 foreach ($paths as $path) 
                 {
                     if (file_exists(realpath($path.$file))) 
@@ -173,7 +185,6 @@ class Controller extends \Dsc\Controller
                         } catch (\Exception $e) {
                             continue;
                         }
-                        
                     }
                 }
             }
@@ -188,11 +199,18 @@ class Controller extends \Dsc\Controller
                 $paths = (array) $f3->get($global_app_name . '.dsc.minify.paths');
                 foreach($files as $key=>$file)
                 {
+                    if (file_exists(realpath($file)))
+                    {
+                        $files[$key] = realpath($file);
+                        continue;
+                    }
+                                        
                     foreach ($paths as $path)
                     {
                         if (file_exists(realpath($path.$file)))
                         {
                             $files[$key] = realpath($path.$file);
+                            continue;
                         }
                     }
                 }
@@ -228,8 +246,11 @@ class Controller extends \Dsc\Controller
                     if ($less->compileFile($source, $destination) !== false) {
                         $less_files[] = $destination;
                     }
-                } catch (\Exception $e) {
-                    // TODO Do something with the error
+                }
+                 
+                catch (\Exception $e) 
+                {
+                    \Dsc\Mongo\Collections\Logs::add( $e->getMessage(), 'ERROR', __CLASS__ . '::' . __METHOD__ );
                 }
     
                 $n++;
