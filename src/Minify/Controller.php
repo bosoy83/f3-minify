@@ -125,6 +125,11 @@ class Controller extends \Dsc\Controller
                         {
                             if (file_exists(realpath($path.$file)))
                             {
+                            	if(strpos($file,'min')) {
+                            		$minified .= file_get_contents( realpath($path.$file) );
+                            	} else {
+                            		$minified .= \Minify\Lib\Js::minify( file_get_contents( realpath($path.$file) ) );
+                            	}
                                 //$files[$key] = realpath($path.$file);
                                 $minified .= \Minify\Lib\Js::minify( file_get_contents( realpath($path.$file) ) );
                             }
