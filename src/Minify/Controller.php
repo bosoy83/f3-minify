@@ -130,8 +130,7 @@ class Controller extends \Dsc\Controller
                             	} else {
                             		$minified .= \Minify\Lib\Js::minify( file_get_contents( realpath($path.$file) ) );
                             	}
-                                //$files[$key] = realpath($path.$file);
-                                $minified .= \Minify\Lib\Js::minify( file_get_contents( realpath($path.$file) ) );
+              
                             }
                         }
                     }
